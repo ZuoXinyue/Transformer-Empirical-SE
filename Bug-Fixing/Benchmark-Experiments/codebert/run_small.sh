@@ -1,5 +1,6 @@
 data_dir=../data/small
-mkdir -p ./saved_models/small/
+mkdir -p ./saved_models_small
+mkdir -p ./stats_test/files
 python run.py \
         --do_train \
         --do_eval \
@@ -9,7 +10,7 @@ python run.py \
         --train_filename $data_dir/train.buggy-fixed.buggy,$data_dir/train.buggy-fixed.fixed \
         --dev_filename $data_dir/valid.buggy-fixed.buggy,$data_dir/valid.buggy-fixed.fixed \
         --test_filename $data_dir/test.buggy-fixed.buggy,$data_dir/test.buggy-fixed.fixed \
-        --output_dir ./saved_models/small/ \
+        --output_dir ./saved_models_small/ \
         --max_source_length 256 \
         --max_target_length 256 \
         --beam_size 5 \
@@ -17,4 +18,4 @@ python run.py \
         --eval_batch_size 16 \
         --learning_rate 5e-5 \
         --num_train_epochs 30 \
-        2>&1 | tee ./saved_models/small/train.log
+        2>&1 | tee ./saved_models_small/train.log

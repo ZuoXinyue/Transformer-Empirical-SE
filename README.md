@@ -1,8 +1,8 @@
-# Empirical Study on Transformer-based Techniques for SE Research
+# Promises and Perils of Using Transformer-based Models for SE Research
 
 ## Environment Preparation
 
-- *Hardware*: NVIDIA RTX A4000
+- *Hardware*: NVIDIA RTX A4000 (16GB VRAM)
 
 - CUDA Version: 11.6
 
@@ -30,32 +30,32 @@
 ├── Bug-Fixing
 │   ├── Benchmark-Experiments
 |   |   ├── ...
-│   ├── Suboptimal-Experiments (RQ3)
+│   ├── Frequent-Experiments (RQ3)
 |   |   ├── ...
 ├── Code-Search
 │   ├── ...
 ├── Code-Summarization
 │   ├── Benchmark-Experiments
 |   |   ├── ...
-│   ├── Suboptimal-Experiments (RQ3)
+│   ├── Frequent-Experiments (RQ3)
 |   |   ├── ...
-│   ├── Mix-Experiments (RQ3)
-|   |   ├── codebert
-|   |   ├── codebert_half
-|   |   ├── codegpt
-|   |   ├── codegpt_half
-|   |   ├── codet5
-│   │   └── codet5_half
+│   ├── Mix-Bench-Experiments (RQ3)
+|   |   ├── ...
+│   ├── Mix-Frequent-Experiments (RQ3)
+|   |   ├── ...
 ├── Data-Preprocessing
 │   ├── Bug-Fixing
 │   ├── Code-Summarization
-|   |   ├── Suboptimal-Dataset
-|   |   ├── Mix-Dataset
-|   |   └── Mix-Half-Dataset
+|   |   ├── Frequent-Dataset
+|   |   ├── Mix-Bench-Dataset
+|   |   └── Mix-Frequent-Dataset
 ```
 
 ## Running Experiments
 Instructions on how to conduct the experiments are given in detail in the respective folders.
+
+## Additional Documents
+We provide the list of Transformer-related papers and their applications in the RQ1_Document folder.
 
 ## Acknowledgement
 Our implementation is adapted from: https://github.com/microsoft/CodeXGLUE, https://github.com/microsoft/CodeBERT, https://github.com/salesforce/CodeT5, https://github.com/ZZR0/ISSTA22-CodeStudy/tree/master

@@ -1,5 +1,6 @@
 data_dir=../data/medium
 mkdir -p ./saved_models/
+mkdir -p ./stats_test/files
 python run.py \
         --do_train \
         --do_eval \

@@ -27,7 +27,7 @@ python preprocess.py
 cd ..
 ```
 
-### Fine-tune and Evaluation
+### Fine-tune and Evaluation (RQ2)
 CodeBERT for example:
 ```shell
 cd codebert
@@ -36,3 +36,4 @@ cd codebert
 ```
 
 The model files and result files are saved in `./codebert/saved_models` folder.
+The resource consumption (RQ4) is recorded in the log files.

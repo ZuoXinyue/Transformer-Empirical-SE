@@ -23,7 +23,7 @@ python run_search.py    \
     --res_dir saved_models/prediction \
     --res_fn saved_models/search_codet5_base.txt   \
     --train_batch_size 8 \
-    --eval_batch_size 8 \
+    --eval_batch_size 1 \
     --max_source_length 256 \
     --max_target_length 256   \
     --gradient_accumulation_steps 4 \

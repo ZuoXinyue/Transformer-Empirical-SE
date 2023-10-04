@@ -22,7 +22,7 @@ python run_defect.py    \
     --res_dir saved_models/prediction \
     --res_fn saved_models/defect_codet5_base.txt   \
     --train_batch_size 1 \
-    --eval_batch_size 4 \
+    --eval_batch_size 1 \
     --max_source_length 512 \
     --max_target_length 3   \
     2>&1 | tee saved_models/test.log

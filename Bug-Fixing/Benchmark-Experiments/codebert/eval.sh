@@ -1,5 +1,4 @@
 data_dir=../data/medium
-mkdir -p ./saved_models/
 python run.py \
         --do_test \
         --model_type roberta \
@@ -13,7 +12,7 @@ python run.py \
         --max_target_length 256 \
         --beam_size 5 \
         --train_batch_size 16 \
-        --eval_batch_size 32 \
+        --eval_batch_size 1 \
         --learning_rate 5e-5 \
         --num_train_epochs 30 \
         2>&1 | tee ./saved_models/test.log

@@ -43,6 +43,10 @@ from configs import add_args, set_seed
 from utils import get_filenames, get_elapse_time, load_and_cache_defect_data
 from models import get_model_size
 
+# add
+import psutil
+import subprocess
+
 MODEL_CLASSES = {'roberta': (RobertaConfig, RobertaModel, RobertaTokenizer),
                  't5': (T5Config, T5ForConditionalGeneration, T5Tokenizer),
                  'codet5': (T5Config, T5ForConditionalGeneration, RobertaTokenizer),
@@ -70,6 +74,11 @@ def evaluate(args, model, eval_examples, eval_data, write_to_pred=False):
     model.eval()
     logits = []
     labels = []
+    # add
+    total_memory = 0
+    total_cpu_usage = 0
+    total_gpu_usages = [0] * 4
+    total_steps = 0
     for batch in tqdm(eval_dataloader, total=len(eval_dataloader), desc="Evaluating"):
         inputs = batch[0].to(args.device)
         label = batch[1].to(args.device)
@@ -78,7 +87,29 @@ def evaluate(args, model, eval_examples, eval_data, write_to_pred=False):
             eval_loss += lm_loss.mean().item()
             logits.append(logit.cpu().numpy())
             labels.append(label.cpu().numpy())
+            # add
+            memory_usage_gb = torch.cuda.memory_allocated() / 1e9 # bytes into gigabytes
+            total_memory += memory_usage_gb
+            cpu_usage = psutil.cpu_percent()
+            total_cpu_usage += cpu_usage
+            result = subprocess.run(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'], stdout=subprocess.PIPE, universal_newlines=True)
+            # print(result.stdout.strip())
+            gpu_usage_output = result.stdout.strip().split('\n')
+            gpu_usages = [float(usage.strip()) for usage in gpu_usage_output]
+            for gpu_index, gpu_usage in enumerate(gpu_usages):
+                total_gpu_usages[gpu_index] += gpu_usage
+            total_steps += 1
         nb_eval_steps += 1
+    
+    # add
+    average_memory = total_memory / total_steps
+    average_cpu_usage = total_cpu_usage / total_steps
+    average_gpu_usages = [total_usage / total_steps for total_usage in total_gpu_usages]
+    print(f"Average Memory Usage (GB): {average_memory:.2f}")
+    print(f"Average CPU Usage (%): {average_cpu_usage:.2f}")
+    for gpu_index, average_gpu_usage in enumerate(average_gpu_usages):
+        print(f"Average GPU {gpu_index} Usage (%): {average_gpu_usage:.2f}")
+
     logits = np.concatenate(logits, 0)
     labels = np.concatenate(labels, 0)
     preds = logits[:, 1] > 0.5
@@ -90,6 +121,17 @@ def evaluate(args, model, eval_examples, eval_data, write_to_pred=False):
         "eval_loss": float(perplexity),
         "eval_acc": round(eval_acc, 4),
     }
+
+    # add, for statistical testing, save the accuracy of different samples
+    with open('./accuracy.txt','w') as f:
+        num_batches = 20
+        num_examples_per_batch = len(labels)//num_batches
+        for i in range(num_batches):
+            if i != (num_batches-1):
+                acc_i = np.mean(labels[i*num_examples_per_batch:(i+1)*num_examples_per_batch] == preds[i*num_examples_per_batch:(i+1)*num_examples_per_batch])
+            else:
+                acc_i = np.mean(labels[i*num_examples_per_batch:] == preds[i*num_examples_per_batch:])
+            f.write(str(acc_i)+'\n')
 
     logger.info("***** Eval results *****")
     for key in sorted(result.keys()):

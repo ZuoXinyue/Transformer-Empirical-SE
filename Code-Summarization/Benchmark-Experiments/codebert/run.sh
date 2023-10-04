@@ -1,5 +1,6 @@
 lang=java #programming language
 mkdir -p ./saved_models/$lang/
+mkdir -p ./stats_test/files
 python run.py \
         --do_train \
         --do_eval \

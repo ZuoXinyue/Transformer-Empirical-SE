@@ -10,7 +10,7 @@ python run.py \
     --epoch 5 \
     --block_size 400 \
     --train_batch_size 32 \
-    --eval_batch_size 64 \
+    --eval_batch_size 1 \
     --learning_rate 2e-5 \
     --max_grad_norm 1.0 \
     --evaluate_during_training \

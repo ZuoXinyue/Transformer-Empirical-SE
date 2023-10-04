@@ -1,4 +1,6 @@
 mkdir -p ./saved_models/medium/cache_data
+mkdir -p ./saved_models/medium/prediction
+mkdir -p ./stats_test/files
 python run_gen.py    \
     --do_train \
     --do_eval \

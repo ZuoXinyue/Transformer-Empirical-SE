@@ -50,6 +50,9 @@ from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           OpenAIGPTConfig, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
                           RobertaConfig, RobertaModel, RobertaTokenizer,
                           DistilBertConfig, DistilBertForMaskedLM, DistilBertTokenizer)
+# add
+import psutil
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -389,6 +392,11 @@ def test(args, model, tokenizer):
     nb_eval_steps = 0
     code_vecs=[] 
     nl_vecs=[]
+    # add
+    total_memory = 0
+    total_cpu_usage = 0
+    total_gpu_usages = [0] * 4
+    total_steps = 0
     for batch in tqdm(eval_dataloader, total=len(eval_dataloader)): # try adding tqdm to visualize the result if this time it still does not produce result
         code_inputs = batch[0].to(args.device)    
         nl_inputs = batch[1].to(args.device)
@@ -397,7 +405,28 @@ def test(args, model, tokenizer):
             eval_loss += lm_loss.mean().item()
             code_vecs.append(code_vec.cpu().numpy())
             nl_vecs.append(nl_vec.cpu().numpy())
+            # add
+            memory_usage_gb = torch.cuda.memory_allocated() / 1e9 # bytes into gigabytes
+            total_memory += memory_usage_gb
+            cpu_usage = psutil.cpu_percent()
+            total_cpu_usage += cpu_usage
+            result = subprocess.run(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'], stdout=subprocess.PIPE, universal_newlines=True)
+            # print(result.stdout.strip())
+            gpu_usage_output = result.stdout.strip().split('\n')
+            gpu_usages = [float(usage.strip()) for usage in gpu_usage_output]
+            for gpu_index, gpu_usage in enumerate(gpu_usages):
+                total_gpu_usages[gpu_index] += gpu_usage
+            total_steps += 1
         nb_eval_steps += 1
+    # add
+    average_memory = total_memory / total_steps
+    average_cpu_usage = total_cpu_usage / total_steps
+    average_gpu_usages = [total_usage / total_steps for total_usage in total_gpu_usages]
+    print(f"Average Memory Usage (GB): {average_memory:.2f}")
+    print(f"Average CPU Usage (%): {average_cpu_usage:.2f}")
+    for gpu_index, average_gpu_usage in enumerate(average_gpu_usages):
+        print(f"Average GPU {gpu_index} Usage (%): {average_gpu_usage:.2f}")
+
     code_vecs=np.concatenate(code_vecs,0)
     nl_vecs=np.concatenate(nl_vecs,0)
     eval_loss = eval_loss / nb_eval_steps
@@ -408,9 +437,9 @@ def test(args, model, tokenizer):
     print(f"calculated scores: {scores}")
 
     print(f"scores to judge if the code is correct: {scores}")
-    print(len(scores))
-    print(len(scores[0])) # so the result is a square matrix where each row stands for the prediction result for 1 instance
-    print(len(scores[1])) # 19210: the number of test cases
+    # print(len(scores))
+    # print(len(scores[0])) # so the result is a square matrix where each row stands for the prediction result for 1 instance
+    # print(len(scores[1])) # 19210: the number of test cases
     # adding what seems to be evaluation from the evaluation part
     ranks=[]
     for i in range(len(scores)):
@@ -443,10 +472,22 @@ def test(args, model, tokenizer):
         "eval_mrr":float(np.mean(ranks))
     }
 
-    print(result)
+    # print(result)
 
     print(f"eval_loss: {float(perplexity)}")
     print(f"eval_mrr: {float(np.mean(ranks))}")
+
+    # add, for statistical testing, save the ranks of different samples
+    print(len(ranks))
+    with open('./ranks.txt','w') as f:
+        num_batches = 20
+        num_examples_per_batch = len(ranks)//num_batches
+        for i in range(num_batches):
+            if i != (num_batches-1):
+                ranks_i = ranks[i*num_examples_per_batch:(i+1)*num_examples_per_batch]
+            else:
+                ranks_i = ranks[i*num_examples_per_batch:]
+            f.write(str(np.mean(ranks_i))+'\n')
 
     return result                    
                         

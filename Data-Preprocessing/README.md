@@ -12,17 +12,23 @@
 
 ## Code Summarization
 
-### Suboptimal Dataset preparation
+### Frequent Dataset preparation
 After downloading dataset from [website](https://drive.google.com/drive/folders/1mKcCoMoGKV6R7p8MQBpXLSGXP62PmxSf), use preprocess.py to obtain data in .jsonl format.
 
-### Mix Dataset Generation
-To generate the mix dataset, we combine the benchmark dataset with randomly sampled equivalent-volume sub-optimal dataset. 
+### Mix-Bench Dataset Generation
+To generate the mix-bench dataset, we combine the benchmark dataset with randomly sampled equivalent-volume frequent dataset. 
 
-1.generate.py: generate sampled sub-optimal dataset.
+1.generate.py: generate sampled frequent dataset.
 
-2.combine sampled sub-optimal datasets with the corresponding benchmark datasets.
+2.combine sampled frequent dataset with the corresponding benchmark dataset.
 
-3.shuffle.py: generate randomized train/valid/test sets.
+3.shuffle.py: shuffle the train/valid/test sets.
 
-### Mix-Half Dataset Generation
-The procedures to generate the mix-half dataset is the same as generating the mix dataset, except that the sample ratios have been changed correspondingly.
+### Mix-Frequent Dataset Generation
+To generate the mix-frequent dataset, we combine the frequent dataset with randomly over-sampled equivalent-volume benchmark dataset. 
+
+1.generate.py: generate over-sampled benchmark dataset.
+
+2.combine over-sampled benchmark dataset with the corresponding frequent dataset.
+
+3.shuffle.py: shuffle the train/valid/test sets.
